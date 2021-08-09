@@ -9,6 +9,9 @@ let camera;
 let renderer;
 let scene;
 let controls;
+const pointcount = 1000000;
+let particles, pointCloud
+let particlePositions = new Float32Array(3*pointcount)
 
 function init() {
     // Reference to container element that holds the entire scene
@@ -29,8 +32,8 @@ function init() {
     // Create Controls
     // container param allows orbit only in the container, not the whole doc
     controls = new OrbitControls(camera, container);
-    controls.minDistance = 5;
-    controls.maxDistance = 100;
+    controls.minDistance = 1000;
+    controls.maxDistance = 5000;
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.screenSpacePanning = false;
@@ -40,6 +43,22 @@ function init() {
     const material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
     const cube = new THREE.Mesh( geometry, material );
     scene.add( cube );
+
+    // point test
+    for(let i = 0; i < 3*pointcount; i++) {
+        particlePositions[i] = Math.random() * 600.0 - 300
+    }
+    const pointMaterial = new THREE.PointsMaterial( {
+        color: 0xFFFFFF,
+        size: 4,
+        blending: THREE.AdditiveBlending,
+        sizeAttenuation: true
+    } );
+
+    particles = new THREE.BufferGeometry()
+    particles.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3).setUsage(THREE.DynamicDrawUsage))
+    pointCloud = new THREE.Points(particles, pointMaterial)
+    scene.add(pointCloud)
 
     // Creating the renderer
     renderer = new THREE.WebGLRenderer({
