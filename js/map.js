@@ -4,83 +4,133 @@ import {OrbitControls} from './three/examples/jsm/controls/OrbitControls.js';
 // To keep ESLint happy
 /* global THREE */
 
-let container;
-let camera;
-let renderer;
-let scene;
-let controls;
-const pointcount = 1000000;
+// Reference to container element that holds the entire scene
+let container = document.querySelector('#scene-container');
+
+let scene = new THREE.Scene();
+// scene.background = new THREE.Color('skyblue');
+
+// Create Camera
+const fov = 35;
+const aspectRatio = container.clientWidth / container.clientHeight;
+const nearPlane = 0.1;
+const farPlane = 10000;
+
+let camera = new THREE.PerspectiveCamera(fov, aspectRatio, nearPlane, farPlane);
+camera.position.set(-2.5, 2, 3);
+
+// Create Controls
+// container param allows orbit only in the container, not the whole doc
+let controls = new OrbitControls(camera, container);
+controls.minDistance = 8;
+controls.maxDistance = 50;
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.screenSpacePanning = false;
+
+// TEST
+const geometry = new THREE.BoxGeometry();
+const material1 = new THREE.MeshStandardMaterial( { color: 0xffffff } );
+const material2 = new THREE.MeshStandardMaterial( { color: 0xffffff } );
+const material3 = new THREE.MeshStandardMaterial( { color: 0xffffff } );
+const material4 = new THREE.MeshStandardMaterial( { color: 0xffffff } );
+const axesHelper = new THREE.AxesHelper( 5 );
+scene.add( axesHelper );
+// const cube = new THREE.Mesh( geometry, material );
+// scene.add( cube );
+
+// Creating the initial test floor
+const level2 = new THREE.Group();
+level2.position.y = -0.5
+// level2.rotateZ(-Math.PI/6);
+const cube1 = new THREE.Mesh(geometry, material1);
+const cube2 = new THREE.Mesh(geometry, material2);
+const cube3 = new THREE.Mesh(geometry, material3);
+const cube4 = new THREE.Mesh(geometry, material4);
+
+cube1.position.set(-1.7, 0, 0);
+cube2.position.set(-0.6, 0, 0);
+cube3.position.set(0.6, 0, 0);
+cube4.position.set(1.7, 0, 0);
+
+level2.add(cube1, cube2, cube3, cube4);
+scene.add(level2);
+
+// Adding lights
+const alight = new THREE.AmbientLight( 0xffffff, .5); 
+const dlight = new THREE.DirectionalLight(0xffffff, .5)
+dlight.position.set(1, 0.25, 0)
+scene.add( dlight )
+scene.add( alight );
+
+// raycaster
+let raycaster = new THREE.Raycaster();
+let mouse = new THREE.Vector2();
+
+// point test
+/*
+// particle cloud test
+const pointcount = 100000;
 let particles, pointCloud
+
 let particlePositions = new Float32Array(3*pointcount)
-
-function init() {
-    // Reference to container element that holds the entire scene
-    container = document.querySelector('#scene-container');
-
-    scene = new THREE.Scene();
-    // scene.background = new THREE.Color('skyblue');
-
-    // Create Camera
-    const fov = 35;
-    const aspectRatio = container.clientWidth / container.clientHeight;
-    const nearPlane = 0.1;
-    const farPlane = 10000;
-
-    camera = new THREE.PerspectiveCamera(fov, aspectRatio, nearPlane, farPlane);
-    camera.position.set(0, 0, 0);
-
-    // Create Controls
-    // container param allows orbit only in the container, not the whole doc
-    controls = new OrbitControls(camera, container);
-    controls.minDistance = 1000;
-    controls.maxDistance = 5000;
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.screenSpacePanning = false;
-
-    // TEST
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
-    const cube = new THREE.Mesh( geometry, material );
-    scene.add( cube );
-
-    // point test
-    for(let i = 0; i < 3*pointcount; i++) {
-        particlePositions[i] = Math.random() * 600.0 - 300
-    }
-    const pointMaterial = new THREE.PointsMaterial( {
-        color: 0xFFFFFF,
-        size: 4,
-        blending: THREE.AdditiveBlending,
-        sizeAttenuation: true
-    } );
-
-    particles = new THREE.BufferGeometry()
-    particles.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3).setUsage(THREE.DynamicDrawUsage))
-    pointCloud = new THREE.Points(particles, pointMaterial)
-    scene.add(pointCloud)
-
-    // Creating the renderer
-    renderer = new THREE.WebGLRenderer({
-        antialias: true
-    });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    // Applying gamma correction for colors
-    renderer.gammaFactor = 2.2;
-    renderer.outputEncoding = THREE.sRGBEncoding;
-
-    // Appending WebGLRenderer's canvas element to HTML
-    container.appendChild(renderer.domElement);
-
-    renderer.setAnimationLoop(() => {
-        update();
-        render();
-    });
+for(let i = 0; i < 3*pointcount; i++) {
+    particlePositions[i] = Math.random() * 600.0 - 300
 }
+const pointMaterial = new THREE.PointsMaterial( {
+    color: 0xFFFFFF,
+    size: 4,
+    blending: THREE.AdditiveBlending,
+    sizeAttenuation: true
+} );
+
+particles = new THREE.BufferGeometry()
+particles.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3).setUsage(THREE.DynamicDrawUsage))
+pointCloud = new THREE.Points(particles, pointMaterial)
+scene.add(pointCloud)
+*/
+
+// Creating the renderer
+let renderer = new THREE.WebGLRenderer({
+    antialias: true
+});
+renderer.setSize(container.clientWidth, container.clientHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+// Applying gamma correction for colors
+renderer.gammaFactor = 2.2;
+renderer.outputEncoding = THREE.sRGBEncoding;
+
+// Appending WebGLRenderer's canvas element to HTML
+container.appendChild(renderer.domElement);
+
+renderer.setAnimationLoop(() => {
+    update();
+    render();
+});
 
 function update() {
     controls.update();
+
+    // Check if hovering a cube and turn it red
+    raycaster.setFromCamera(mouse, camera);
+
+    const objectsToTest = [cube1, cube2, cube3, cube4]
+    const intersects = raycaster.intersectObjects(objectsToTest)
+    console.log(intersects);
+
+    for(const object of objectsToTest)
+    {
+        // if(!intersects.find(intersect => intersect.object === object))
+        // {
+            object.material.color.set('#ffffff')
+        // }
+    }
+    if(intersects.length)
+        intersects[0].object.material.color.set('#ff0000');
+    // for(const intersect of intersects)
+    // {
+    //     intersect.object.material.color.set('#ff0000')
+    // }
 }
 
 function render() {
@@ -96,7 +146,12 @@ function onWindowResize() {
     renderer.setSize(container.clientWidth, container.clientHeight);
 }
 
-// Scene setup
-init();
-
 window.addEventListener('resize', onWindowResize);
+
+window.addEventListener('mousemove', (event) =>
+{
+    mouse.x = event.clientX / window.innerWidth * 2 - 1
+    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1
+
+    console.log(mouse)
+})
