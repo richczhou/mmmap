@@ -143,6 +143,7 @@ function update() {
     const intersects = raycaster.intersectObjects(objectsToTest)
     // console.log(intersects);
 
+    // reset colors of objects
     for(const object of objectsToTest)
     {
         // if(!intersects.find(intersect => intersect.object === object))
@@ -151,9 +152,20 @@ function update() {
             // if it has a stalk
             if(object.parent.children[1]) {
                 object.parent.children[1].material.color.set('#ffffff')
+
+                // scale to shrink and move it inside the cube
+                gsap.to(object.parent.children[1].scale, {
+                    duration: 0.5,
+                    y: 0.01
+                })
+                gsap.to(object.parent.children[1].position, {
+                    duration: 0.5,
+                    y: 0.45
+                })
             }
         // }
     }
+    // if the raycast hits something
     if(intersects.length) {
         intersects[0].object.material.color.set('#ff0000');
     // for(const intersect of intersects)
@@ -164,6 +176,14 @@ function update() {
         console.log(intersects[0].object.parent.children[1])
         if(intersects[0].object.parent.children[1]) {
             intersects[0].object.parent.children[1].material.color.set('#ff0000')
+            gsap.to(intersects[0].object.parent.children[1].scale, {
+                duration: 0.5,
+                y: 2
+            })
+            gsap.to(intersects[0].object.parent.children[1].position, {
+                duration: 0.5,
+                y: 1.75
+            })
         }
     }
 }
