@@ -17,7 +17,7 @@ const nearPlane = 0.1;
 const farPlane = 10000;
 
 let camera = new THREE.PerspectiveCamera(fov, aspectRatio, nearPlane, farPlane);
-camera.position.set(-2.5, 2, 3);
+camera.position.set(-1.5, 1.5, 3);
 
 // Create Controls
 // container param allows orbit only in the container, not the whole doc
@@ -41,19 +41,44 @@ scene.add( axesHelper );
 
 // Creating the initial test floor
 const level2 = new THREE.Group();
-level2.position.y = -0.5
+level2.position.set(0.2, -0.5, 0);
 // level2.rotateZ(-Math.PI/6);
-const cube1 = new THREE.Mesh(geometry, material1);
-const cube2 = new THREE.Mesh(geometry, material2);
-const cube3 = new THREE.Mesh(geometry, material3);
-const cube4 = new THREE.Mesh(geometry, material4);
 
-cube1.position.set(-1.7, 0, 0);
+const cube1 = new THREE.Mesh(geometry, material1);
+const cg1 = new THREE.Group();
+cg1.add(cube1);
+level2.add(cg1);
+
+const cube2 = new THREE.Mesh(geometry, material2);
+const cg2 = new THREE.Group();
+cg2.add(cube2);
+level2.add(cg2);
+
+const cube3 = new THREE.Mesh(geometry, material3);
+const cg3 = new THREE.Group();
+cg3.add(cube3);
+level2.add(cg3);
+
+const cube4 = new THREE.Mesh(geometry, material4);
+const cg4 = new THREE.Group();
+cg4.add(cube4);
+level2.add(cg4);
+
+cube1.position.set(-1.8, 0, 0);
 cube2.position.set(-0.6, 0, 0);
 cube3.position.set(0.6, 0, 0);
-cube4.position.set(1.7, 0, 0);
+cube4.position.set(1.8, 0, 0);
 
-level2.add(cube1, cube2, cube3, cube4);
+
+// The line part of the labels
+
+// line part again but as a cylinder
+const stalkGeo = new THREE.CylinderGeometry(0.01, 0.01, 2, 3, 1); // top r, bot r, height, circle seg, height seg
+const stalkMat = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+const stalk = new THREE.Mesh(stalkGeo, stalkMat)
+stalk.position.set(-1.8, .5, 0)
+cg1.add(stalk)
+
 scene.add(level2);
 
 // Adding lights
@@ -116,21 +141,31 @@ function update() {
 
     const objectsToTest = [cube1, cube2, cube3, cube4]
     const intersects = raycaster.intersectObjects(objectsToTest)
-    console.log(intersects);
+    // console.log(intersects);
 
     for(const object of objectsToTest)
     {
         // if(!intersects.find(intersect => intersect.object === object))
         // {
             object.material.color.set('#ffffff')
+            // if it has a stalk
+            if(object.parent.children[1]) {
+                object.parent.children[1].material.color.set('#ffffff')
+            }
         // }
     }
-    if(intersects.length)
+    if(intersects.length) {
         intersects[0].object.material.color.set('#ff0000');
     // for(const intersect of intersects)
     // {
     //     intersect.object.material.color.set('#ff0000')
     // }
+        // make the cylinder tall
+        console.log(intersects[0].object.parent.children[1])
+        if(intersects[0].object.parent.children[1]) {
+            intersects[0].object.parent.children[1].material.color.set('#ff0000')
+        }
+    }
 }
 
 function render() {
@@ -153,5 +188,5 @@ window.addEventListener('mousemove', (event) =>
     mouse.x = event.clientX / window.innerWidth * 2 - 1
     mouse.y = - (event.clientY / window.innerHeight) * 2 + 1
 
-    console.log(mouse)
+    // console.log(mouse)
 })
