@@ -69,15 +69,44 @@ cube2.position.set(-0.6, 0, 0);
 cube3.position.set(0.6, 0, 0);
 cube4.position.set(1.8, 0, 0);
 
-
-// The line part of the labels
-
 // line part again but as a cylinder
+/*
 const stalkGeo = new THREE.CylinderGeometry(0.01, 0.01, 2, 3, 1); // top r, bot r, height, circle seg, height seg
 const stalkMat = new THREE.MeshBasicMaterial( {color: 0xffffff} );
-const stalk = new THREE.Mesh(stalkGeo, stalkMat)
-stalk.position.set(-1.8, .5, 0)
-cg1.add(stalk)
+
+const stalk1 = new THREE.Mesh(stalkGeo, stalkMat)
+stalk1.position.set(-1.8, .5, 0)
+cg1.add(stalk1)
+
+const stalk2 = new THREE.Mesh(stalkGeo, stalkMat)
+stalk2.position.set(-0.6, .5, 0)
+cg2.add(stalk2)
+
+const stalk3 = new THREE.Mesh(stalkGeo, stalkMat)
+stalk3.position.set(0.6, .5, 0)
+cg3.add(stalk3)
+
+const stalk4 = new THREE.Mesh(stalkGeo, stalkMat)
+stalk4.position.set(1.8, .5, 0)
+cg4.add(stalk4)
+*/
+
+// Adding the text labels
+const labels = [
+    {
+        position: new THREE.Vector3(-1.5, 2.1, 0),
+        element: document.querySelector('.point-210'),
+        room: 210
+    }
+]
+const stalks = [
+    {
+        position: new THREE.Vector3(-1.6, 0, 0),
+        element: document.querySelector('.bar-210'),
+        room: 210
+    }
+]
+console.log(stalks)
 
 scene.add(level2);
 
@@ -136,6 +165,22 @@ renderer.setAnimationLoop(() => {
 function update() {
     controls.update();
 
+    // update position of labels
+    for (const stalk of stalks) {
+        const screenPosition = stalk.position.clone();
+        screenPosition.project(camera);
+        
+        const translateX = screenPosition.x * window.innerWidth * 0.5;
+        const translateY = - screenPosition.y * window.innerHeight * 0.5;
+        stalk.element.style.transform = `translateX(${translateX}px) translateY(${translateY - 400}px)`
+        
+        // set position of label
+        const label = labels.find(d => d.room == stalk.room);
+        if (label) {
+            label.element.style.transform = `translateX(${translateX + 20}px) translateY(${translateY - 400}px)`
+        }
+    }
+
     // Check if hovering a cube and turn it red
     raycaster.setFromCamera(mouse, camera);
 
@@ -154,14 +199,14 @@ function update() {
                 object.parent.children[1].material.color.set('#ffffff')
 
                 // scale to shrink and move it inside the cube
-                gsap.to(object.parent.children[1].scale, {
-                    duration: 0.5,
-                    y: 0.01
-                })
-                gsap.to(object.parent.children[1].position, {
-                    duration: 0.5,
-                    y: 0.45
-                })
+                // gsap.to(object.parent.children[1].scale, {
+                //     duration: 0.5,
+                //     y: 0.01
+                // })
+                // gsap.to(object.parent.children[1].position, {
+                //     duration: 0.5,
+                //     y: 0.45
+                // })
             }
         // }
     }
@@ -175,15 +220,15 @@ function update() {
         // make the cylinder tall
         console.log(intersects[0].object.parent.children[1])
         if(intersects[0].object.parent.children[1]) {
-            intersects[0].object.parent.children[1].material.color.set('#ff0000')
-            gsap.to(intersects[0].object.parent.children[1].scale, {
-                duration: 0.5,
-                y: 2
-            })
-            gsap.to(intersects[0].object.parent.children[1].position, {
-                duration: 0.5,
-                y: 1.75
-            })
+            // intersects[0].object.parent.children[1].material.color.set('#ff0000')
+            // gsap.to(intersects[0].object.parent.children[1].scale, {
+            //     duration: 0.5,
+            //     y: 2
+            // })
+            // gsap.to(intersects[0].object.parent.children[1].position, {
+            //     duration: 0.5,
+            //     y: 1.75
+            // })
         }
     }
 }
