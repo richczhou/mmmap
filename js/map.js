@@ -79,6 +79,21 @@ const labels = [
         position: new THREE.Vector3(-1.5, 2.1, 0),
         element: document.querySelector('.point-210'),
         room: 210
+    },
+    {
+        position: new THREE.Vector3(-0.3, 2.1, 0),
+        element: document.querySelector('.point-211'),
+        room: 211
+    },
+    {
+        position: new THREE.Vector3(0.9, 2.1, 0),
+        element: document.querySelector('.point-212'),
+        room: 212
+    },
+    {
+        position: new THREE.Vector3(2.1, 2.1, 0),
+        element: document.querySelector('.point-213'),
+        room: 213
     }
 ]
 const stalks = [
@@ -86,6 +101,21 @@ const stalks = [
         position: new THREE.Vector3(-1.6, 0, 0),
         element: document.querySelector('.bar-210'),
         room: 210
+    },
+    {
+        position: new THREE.Vector3(-0.4, 0, 0),
+        element: document.querySelector('.bar-211'),
+        room: 211
+    },
+    {
+        position: new THREE.Vector3(0.8, 0, 0),
+        element: document.querySelector('.bar-212'),
+        room: 212
+    },
+    {
+        position: new THREE.Vector3(2.0, 0, 0),
+        element: document.querySelector('.bar-213'),
+        room: 213
     }
 ]
 
@@ -153,22 +183,6 @@ function update() {
     const intersects = raycaster.intersectObjects(objectsToTest)
     // console.log(intersects);
 
-    // reset colors of objects
-    for(const object of objectsToTest)
-    {
-        if(!intersects.find(intersect => intersect.object === object))
-        {
-            object.material.color.set('#ffffff')
-            
-            const cubeStalk = stalks.find(d => d.room == object.userData.room);
-            if (cubeStalk) {
-                gsap.to(cubeStalk.element, {
-                    duration: 0.5,
-                    height: 0
-                })
-            }
-        }
-    }
     // if the raycast hits something
     if(intersects.length) {
         intersects[0].object.material.color.set('#ff0000');
@@ -180,6 +194,22 @@ function update() {
                 duration: 0.5,
                 height: 300
             })
+        }
+    }
+    // reset colors of objects
+    for(const object of objectsToTest)
+    {
+        if (!intersects[0] || intersects[0].object !== object)
+        {
+            object.material.color.set('#ffffff')
+            
+            const cubeStalk = stalks.find(d => d.room == object.userData.room);
+            if (cubeStalk) {
+                gsap.to(cubeStalk.element, {
+                    duration: 0.5,
+                    height: 0
+                })
+            }
         }
     }
 }

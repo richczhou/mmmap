@@ -21,17 +21,17 @@ body {
 
 .point .label {
     font-family: Helvetica, sans-serif;
-    line-height: 64px;
+    line-height: 54px;
     font-weight: 700;
-    font-size: 60px;
+    font-size: 48px;
     /* opacity: 0; */
 }
 
 .point .text {
     font-family: Helvetica, sans-serif;
-    line-height: 36px;
+    line-height: 28px;
     font-weight: 100;
-    font-size: 32px;
+    font-size: 24px;
     /* opacity: 0; */
 }
 
@@ -43,5 +43,4 @@ body {
     /* height: 300px; */
     height: 0px;
     width: 2px;
-    transform: scaleX(-1);
 }
