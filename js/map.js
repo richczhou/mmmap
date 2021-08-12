@@ -139,8 +139,7 @@ function update() {
             label.element.style.transform = `translateX(${translateX + 20}px) translateY(${translateY - stalkHeight}px)`
             // see if its tall enough to even draw
             if (stalkHeight > 200) {
-                label.element.style.opacity = "1"
-                // use string backtick to scale?
+                label.element.style.opacity = `${(stalkHeight - 200) / 100}`
             } else {
                 label.element.style.opacity = "0"
             }
