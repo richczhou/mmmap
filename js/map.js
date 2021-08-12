@@ -45,21 +45,25 @@ level2.position.set(0.2, -0.5, 0);
 // level2.rotateZ(-Math.PI/6);
 
 const cube1 = new THREE.Mesh(geometry, material1);
+cube1.userData = {room: 210};
 const cg1 = new THREE.Group();
 cg1.add(cube1);
 level2.add(cg1);
 
 const cube2 = new THREE.Mesh(geometry, material2);
+cube2.userData = {room: 211};
 const cg2 = new THREE.Group();
 cg2.add(cube2);
 level2.add(cg2);
 
 const cube3 = new THREE.Mesh(geometry, material3);
+cube3.userData = {room: 212};
 const cg3 = new THREE.Group();
 cg3.add(cube3);
 level2.add(cg3);
 
 const cube4 = new THREE.Mesh(geometry, material4);
+cube4.userData = {room: 213};
 const cg4 = new THREE.Group();
 cg4.add(cube4);
 level2.add(cg4);
@@ -68,28 +72,6 @@ cube1.position.set(-1.8, 0, 0);
 cube2.position.set(-0.6, 0, 0);
 cube3.position.set(0.6, 0, 0);
 cube4.position.set(1.8, 0, 0);
-
-// line part again but as a cylinder
-/*
-const stalkGeo = new THREE.CylinderGeometry(0.01, 0.01, 2, 3, 1); // top r, bot r, height, circle seg, height seg
-const stalkMat = new THREE.MeshBasicMaterial( {color: 0xffffff} );
-
-const stalk1 = new THREE.Mesh(stalkGeo, stalkMat)
-stalk1.position.set(-1.8, .5, 0)
-cg1.add(stalk1)
-
-const stalk2 = new THREE.Mesh(stalkGeo, stalkMat)
-stalk2.position.set(-0.6, .5, 0)
-cg2.add(stalk2)
-
-const stalk3 = new THREE.Mesh(stalkGeo, stalkMat)
-stalk3.position.set(0.6, .5, 0)
-cg3.add(stalk3)
-
-const stalk4 = new THREE.Mesh(stalkGeo, stalkMat)
-stalk4.position.set(1.8, .5, 0)
-cg4.add(stalk4)
-*/
 
 // Adding the text labels
 const labels = [
@@ -106,7 +88,6 @@ const stalks = [
         room: 210
     }
 ]
-console.log(stalks)
 
 scene.add(level2);
 
@@ -120,29 +101,6 @@ scene.add( alight );
 // raycaster
 let raycaster = new THREE.Raycaster();
 let mouse = new THREE.Vector2();
-
-// point test
-/*
-// particle cloud test
-const pointcount = 100000;
-let particles, pointCloud
-
-let particlePositions = new Float32Array(3*pointcount)
-for(let i = 0; i < 3*pointcount; i++) {
-    particlePositions[i] = Math.random() * 600.0 - 300
-}
-const pointMaterial = new THREE.PointsMaterial( {
-    color: 0xFFFFFF,
-    size: 4,
-    blending: THREE.AdditiveBlending,
-    sizeAttenuation: true
-} );
-
-particles = new THREE.BufferGeometry()
-particles.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3).setUsage(THREE.DynamicDrawUsage))
-pointCloud = new THREE.Points(particles, pointMaterial)
-scene.add(pointCloud)
-*/
 
 // Creating the renderer
 let renderer = new THREE.WebGLRenderer({
@@ -172,12 +130,20 @@ function update() {
         
         const translateX = screenPosition.x * window.innerWidth * 0.5;
         const translateY = - screenPosition.y * window.innerHeight * 0.5;
-        stalk.element.style.transform = `translateX(${translateX}px) translateY(${translateY - 400}px)`
+        const stalkHeight = parseInt(getComputedStyle(stalk.element).height)
+        stalk.element.style.transform = `translateX(${translateX}px) translateY(${translateY - stalkHeight}px)`
         
         // set position of label
         const label = labels.find(d => d.room == stalk.room);
         if (label) {
-            label.element.style.transform = `translateX(${translateX + 20}px) translateY(${translateY - 400}px)`
+            label.element.style.transform = `translateX(${translateX + 20}px) translateY(${translateY - stalkHeight}px)`
+            // see if its tall enough to even draw
+            if (stalkHeight > 200) {
+                label.element.style.opacity = "1"
+                // use string backtick to scale?
+            } else {
+                label.element.style.opacity = "0"
+            }
         }
     }
 
@@ -191,44 +157,30 @@ function update() {
     // reset colors of objects
     for(const object of objectsToTest)
     {
-        // if(!intersects.find(intersect => intersect.object === object))
-        // {
+        if(!intersects.find(intersect => intersect.object === object))
+        {
             object.material.color.set('#ffffff')
-            // if it has a stalk
-            if(object.parent.children[1]) {
-                object.parent.children[1].material.color.set('#ffffff')
-
-                // scale to shrink and move it inside the cube
-                // gsap.to(object.parent.children[1].scale, {
-                //     duration: 0.5,
-                //     y: 0.01
-                // })
-                // gsap.to(object.parent.children[1].position, {
-                //     duration: 0.5,
-                //     y: 0.45
-                // })
+            
+            const cubeStalk = stalks.find(d => d.room == object.userData.room);
+            if (cubeStalk) {
+                gsap.to(cubeStalk.element, {
+                    duration: 0.5,
+                    height: 0
+                })
             }
-        // }
+        }
     }
     // if the raycast hits something
     if(intersects.length) {
         intersects[0].object.material.color.set('#ff0000');
-    // for(const intersect of intersects)
-    // {
-    //     intersect.object.material.color.set('#ff0000')
-    // }
+
         // make the cylinder tall
-        console.log(intersects[0].object.parent.children[1])
-        if(intersects[0].object.parent.children[1]) {
-            // intersects[0].object.parent.children[1].material.color.set('#ff0000')
-            // gsap.to(intersects[0].object.parent.children[1].scale, {
-            //     duration: 0.5,
-            //     y: 2
-            // })
-            // gsap.to(intersects[0].object.parent.children[1].position, {
-            //     duration: 0.5,
-            //     y: 1.75
-            // })
+        const cubeStalk = stalks.find(d => d.room == intersects[0].object.userData.room);
+        if (cubeStalk) {
+            gsap.to(cubeStalk.element, {
+                duration: 0.5,
+                height: 300
+            })
         }
     }
 }
