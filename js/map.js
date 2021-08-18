@@ -42,7 +42,6 @@ scene.add( axesHelper );
 // Creating the initial test floor
 const level2 = new THREE.Group();
 level2.position.set(0.2, -0.5, 0);
-// level2.rotateZ(-Math.PI/6);
 
 const cube1 = new THREE.Mesh(geometry, material1);
 cube1.userData = {room: 210};
